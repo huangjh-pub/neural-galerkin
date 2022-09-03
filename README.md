@@ -24,6 +24,10 @@ This repository is divided into two parts:
 
 🌱 If you just want to use `pytorch_spsr`, then simply install it like a standard Python package, because the module is compatible with `setuptools`:
 ```shell
+# Install ninja-build if it's not there
+pip install ninja
+
+# Install pytorch_spsr. Parallel build with MAX_JOBS=XX
 python setup.py install
 
 # If you want to develop locally:
@@ -34,14 +38,17 @@ python setup.py install
 
 ```bash
 # Create a new conda environment
-conda create -n synorim python=3.8
-conda activate synorim
+conda create -n ngs python=3.10
+conda activate ngs
 
-# Install pytorch
-conda install pytorch==1.10.2 cudatoolkit=11.1 -c pytorch -c nvidia
+# Install PyTorch (this may require upgrade your driver, why not)
+conda install pytorch cudatoolkit=11.6 -c pytorch -c conda-forge
 
 # Install other packages
 pip install -r requirements.txt
+
+# Compile pytorch_spsr CUDA extensions inplace
+python setup.py build_ext --inplace
 ```
 
 ## Dataset

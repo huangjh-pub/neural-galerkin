@@ -1,0 +1,2 @@
+include torch_spsr/data/test.txt
+include LICENSE
