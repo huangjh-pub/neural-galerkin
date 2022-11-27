@@ -7,6 +7,9 @@ def get_basis(name, **kwargs):
     """
     if name == "BezierTensorBasis":
         from .bezier_tensor import BezierTensorBasis
-        return BezierTensorBasis(**kwargs)
+        return BezierTensorBasis()
+    elif name == "AdditiveHermite":
+        from .hermite_ns import AdditiveHermite
+        return AdditiveHermite(**kwargs)
     else:
         raise NotImplementedError

@@ -7,24 +7,22 @@ class BaseBasis(torch.nn.Module, ABC):
         super().__init__()
 
     @classmethod
-    def get_domain_range(cls):
+    def get_domain_range(cls) -> int:
         """
         Get the support of the current basis.
         :return: support size in the unit of voxel sizes.
         """
         return 3
 
-    @classmethod
-    @abstractmethod
-    def get_feature_size(cls):
+    def get_feature_size(self) -> int:
         """
         Get the feature channels needed (i.e. the dimension of $m_k^s$)
         :return: int. feature_size
         """
-        pass
+        return 0
 
     @abstractmethod
-    def initialize_feature_value(self, feat: torch.Tensor):
+    def initialize_feature_value(self, feat: torch.Tensor) -> None:
         """
         Initialize the input features, so that the basis behaves like Bezier.
             This would give a good start for basis optimization.
@@ -34,7 +32,7 @@ class BaseBasis(torch.nn.Module, ABC):
         pass
 
     @abstractmethod
-    def evaluate(self, feat: torch.Tensor, xyz: torch.Tensor, feat_ids: torch.Tensor):
+    def evaluate(self, feat: torch.Tensor, xyz: torch.Tensor, feat_ids: torch.Tensor) -> torch.Tensor:
         """
         :param feat: torch.Tensor (M, K),     the basis feature, i.e. $m_k^s$.
         :param xyz:  torch.Tensor (N, 3),     local coordinates w.r.t. the voxel's center.
@@ -44,7 +42,8 @@ class BaseBasis(torch.nn.Module, ABC):
         pass
 
     @abstractmethod
-    def evaluate_derivative(self, feat: torch.Tensor, xyz: torch.Tensor, feat_ids: torch.Tensor, stride: int):
+    def evaluate_derivative(self, feat: torch.Tensor, xyz: torch.Tensor,
+                            feat_ids: torch.Tensor, stride: int) -> torch.Tensor:
         """
         :param feat: torch.Tensor (M, K),     the basis feature, i.e. $m_k^s$.
         :param xyz:  torch.Tensor (N, 3),     local coordinates w.r.t. the voxel's center.
@@ -57,7 +56,7 @@ class BaseBasis(torch.nn.Module, ABC):
     @abstractmethod
     def integrate_deriv_deriv_product(self, source_feat: torch.Tensor, target_feat: torch.Tensor,
                                       rel_pos: torch.Tensor, source_stride: int, target_stride: int,
-                                      source_ids: torch.Tensor, target_ids: torch.Tensor):
+                                      source_ids: torch.Tensor, target_ids: torch.Tensor) -> torch.Tensor:
         """
         Compute $integrate_Omega nabla B_source^T nabla B_target$, as appeared in LHS.
         :param source_feat: torch.Tensor (M_source, K), the source basis feature
@@ -74,7 +73,7 @@ class BaseBasis(torch.nn.Module, ABC):
     @abstractmethod
     def integrate_const_deriv_product(self, data: torch.Tensor, target_feat: torch.Tensor,
                                       rel_pos: torch.Tensor, data_stride: int, target_stride: int,
-                                      target_ids: torch.Tensor):
+                                      target_ids: torch.Tensor) -> torch.Tensor:
         """
         Compute $integrate_Omega nabla B_target^T data$, as appeared in RHS.
         :param data:        torch.Tensor (N, K), the data (N) to be integrated

@@ -1,0 +1,34 @@
+_onet_base_path: "data/shapenet/onet"
+_categories: ['02691156', '02828884', '02933112', '02958343', '03211117', '03001627', '03636649',
+              '03691459', '04090263', '04256520', '04379243', '04401088', '04530566']
+_transforms:
+  - name: "PointcloudNoise"
+    args: { "stddev": 0.005 }
+  - name: "SubsamplePointcloud"
+    args: { "N": 3000 }
+
+train_dataset: ShapeNetDataset
+train_val_num_workers: 4
+train_kwargs:
+  onet_base_path: ${_onet_base_path}
+  categories: ${_categories}
+  transforms: ${_transforms}
+  split: "train"
+  random_seed: 0
+
+val_dataset: ShapeNetDataset
+val_kwargs:
+  onet_base_path: ${_onet_base_path}
+  categories: ${_categories}
+  transforms: ${_transforms}
+  split: "val"
+  random_seed: "fixed"
+
+test_dataset: ShapeNetDataset
+test_num_workers: 4
+test_kwargs:
+  onet_base_path: ${_onet_base_path}
+  categories: ${_categories}
+  transforms: ${_transforms}
+  split: "test"
+  random_seed: "fixed"

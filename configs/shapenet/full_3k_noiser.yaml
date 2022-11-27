@@ -1,0 +1,10 @@
+include_configs:
+  - full_net_base.yaml
+  - data_3k_noiser.yaml
+
+name: 'shapenet-noiser3k/main'
+
+load_pretrained: "checkpoints/shapenet-noiser3k/main_phase1/version_0/checkpoints/last.ckpt"
+
+weighted:
+  enabled: true

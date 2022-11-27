@@ -1,11 +1,14 @@
 tqdm
 sympy
+numpy
 scipy
 torch_scatter
-# https://storage.googleapis.com/open3d-releases-master for cp310
-open3d
 omegaconf
 pykdtree
 ninja
-# 1.7.x may also work but we want to ensure reproducibility
-pytorch_lightning==1.3.8
+matplotlib
+pytorch_lightning==1.6.4
+
+--extra-index-url http://eagle.huangjh.tech:8080/simple
+--trusted-host eagle.huangjh.tech
+python-pycg==0.2.0

@@ -1,2 +1,4 @@
-include torch_spsr/data/test.txt
+include torch_spsr/data/bezier_integrals.pkl
+include torch_spsr/data/kernel.npz
+include torch_spsr/data/additive_integrals/*.npz
 include LICENSE

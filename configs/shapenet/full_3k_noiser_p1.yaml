@@ -1,0 +1,15 @@
+include_configs:
+  - "full_3k_noiser.yaml"
+
+name: 'shapenet-noiser3k/main_phase1'
+model: full_net_phase1
+
+load_pretrained: null
+
+supervision:
+  vox_normal:
+    weight: 25.0
+
+structure_schedule:
+  start_step: 5000
+  end_step: 20000

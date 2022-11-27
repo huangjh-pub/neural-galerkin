@@ -1,0 +1,7 @@
+include_configs:
+  - full_net_base.yaml
+  - data_1k_perfect.yaml
+
+name: 'shapenet-perfect1k/main'
+
+load_pretrained: "checkpoints/shapenet-perfect1k/main_phase1/version_0/checkpoints/last.ckpt"
