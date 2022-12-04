@@ -1,0 +1,17 @@
+_onet_base_path: "data/dfaust/novel"
+_categories: null
+_transforms:
+  - name: "PointcloudNoise"
+    args: { "stddev": 0.0 }
+  - name: "SubsamplePointcloud"
+    args: { "N": 10000 }
+
+test_dataset: ShapeNetDataset
+test_num_workers: 4
+test_kwargs:
+  onet_base_path: ${_onet_base_path}
+  categories: ${_categories}
+  transforms: ${_transforms}
+  split: "sub"
+  custom_name: "dfaust_novel"
+  random_seed: "fixed"

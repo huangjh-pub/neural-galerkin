@@ -1,7 +1,7 @@
 include_configs:
   - full_net_base.yaml
   - data_3k_noise.yaml
-  -
+
 name: 'shapenet-noise3k/main'
 
 load_pretrained: "checkpoints/shapenet-noise3k/main_phase1/version_0/checkpoints/last.ckpt"

@@ -1,0 +1,26 @@
+_transforms:
+  - name: "SubsamplePointcloud"
+    args: { "N": 10000 }
+
+train_dataset: MatterportDataset
+train_val_num_workers: 4
+train_kwargs:
+  base_path: "data/matterport"
+  transforms: ${_transforms}
+  split: "train"
+  random_seed: 0
+
+val_dataset: MatterportDataset
+val_kwargs:
+  base_path: "data/matterport"
+  transforms: ${_transforms}
+  split: "val"
+  random_seed: "fixed"
+
+test_dataset: MatterportDataset
+test_num_workers: 4
+test_kwargs:
+  base_path: "data/matterport"
+  transforms: ${_transforms}
+  split: "test"
+  random_seed: "fixed"

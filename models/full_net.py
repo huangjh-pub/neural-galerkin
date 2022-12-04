@@ -23,6 +23,7 @@ def get_normal_variation_policy(tau: float = 0.1, take_abs: bool = False):
     """
     Compute Var(nx) + Var(ny) + Var(nz).
     """
+
     def sp_impl(xyz: torch.Tensor, inds: torch.Tensor, normal: torch.Tensor):
         nx, ny, nz = normal[:, 0], normal[:, 1], normal[:, 2]
         if take_abs:
@@ -57,7 +58,7 @@ class Model(BaseModel):
             )
 
         # We might want to use a pre-trained network.
-        if self.hparams.load_pretrained is not None:
+        if self.hparams.load_pretrained is not None and self.hparams.load_pretrained != "none":
             self.load_state_dict(torch.load(self.hparams.load_pretrained)['state_dict'],
                                  strict=self.hparams.load_pretrained_strict)
             exp.logger.info("Loaded check point state from", self.hparams.load_pretrained)
@@ -121,7 +122,7 @@ class Model(BaseModel):
             normal_data=normal_data,
             screen_alpha=self.hparams.screening.alpha,
             screen_xyz=input_xyz,
-            screen_delta=self.hparams.screening.delta * (2 * point_w if point_w is not None else 1),
+            screen_delta=self.hparams.screening.delta * (2 * point_w[:, 0] if point_w is not None else 1),
             solver=self.hparams.solver,
             verbose=False,
         )
@@ -136,7 +137,7 @@ class Model(BaseModel):
         mc_query_sdf = sdf_from_points(query_pos, ref_xyz, ref_normal, 8, 0.02)
         if do_smooth:
             return torch.tanh(-mc_query_sdf / self.hparams.supervision.chi_gt_smoothing) * \
-                              self.hparams.screening.delta
+                   self.hparams.screening.delta
         else:
             return (mc_query_sdf < 0.0).float() * 2 - 1
 
@@ -274,32 +275,21 @@ class Model(BaseModel):
         return loss_sum
 
     def test_step(self, batch, batch_idx):
-        if self.hparams.enable_timing:
-            exp.global_timers.enable("main", cuda_sync=True, persistent=True)
-
         self.log('source', batch[DS.SHAPE_NAME][0], on_epoch=False)
 
         input_pc = batch[DS.INPUT_PC][0]
         out = {'idx': batch_idx}
-
-        if self.hparams.test_use_gt_structure:
-            self.compute_gt_hashtree(batch, out)
-
         out = self(batch, out)
 
         loss_dict, metric_dict = self.compute_loss(batch, out, compute_metric=True)
         self.log_dict(loss_dict)
         self.log_dict(metric_dict)
 
-        exp.global_timers.toc("main", "Before mesh.")
         mesh, mc_query_pos, mc_base_coords = self.compute_mesh(out, return_samples=True)
-        exp.global_timers.toc("main", "After mesh.")
 
         evaluator = MeshEvaluator(essential_only=True)
         eval_dict = evaluator.eval_mesh(mesh, batch[DS.GT_DENSE_PC][0], batch[DS.GT_DENSE_NORMAL][0])
         self.log_dict(eval_dict)
-
-        exp.global_timers.finalize("main", merged=True)
 
         if self.record_folder is not None:
             self.test_log_data({
@@ -310,18 +300,18 @@ class Model(BaseModel):
         if self.hparams.visualize:
             print(pd.DataFrame([eval_dict]))
 
-            reconstructor = out['reconstructor']
             ref_xyz, ref_normal = batch[DS.GT_DENSE_PC][0], batch[DS.GT_DENSE_NORMAL][0]
-            best_mesh = reconstructor.extract_mesh(mc_base_coords,
-                                                   self.compute_gt_chi(mc_query_pos, ref_xyz, ref_normal),
-                                                   self.hparams.marching_cubes.depth)
-
             vis.show_3d(
-                [vis.pointcloud(input_pc, is_sphere=False, sphere_radius=0.006,
-                                **({'cfloat': out['point_w'], 'cfloat_normalize': True} if 'point_w' in out.keys()
-                                else {'ucid': 6})), vis.colored_mesh(mesh)],
-                [vis.pointcloud(input_pc), vis.colored_mesh(best_mesh)],
-                point_size=2, use_new_api=True, auto_plane=False
+                [
+                    vis.pointcloud(
+                        input_pc,
+                        **({'cfloat': out['point_w'], 'cfloat_normalize': True} if 'point_w' in out.keys()
+                           else {'ucid': 6})
+                    ),
+                    vis.colored_mesh(mesh)
+                ],
+                [vis.pointcloud(ref_xyz, normal=ref_normal)],
+                point_size=2, use_new_api=True,
             )
 
     def get_dataset_spec(self):

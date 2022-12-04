@@ -432,8 +432,6 @@ class BaseModel(pl.LightningModule):
         import dataset
         test_set = dataset.build_dataset(
             self.hparams.test_dataset, self.get_dataset_spec(), self.hparams, self.hparams.test_kwargs)
-        if self.hparams.test_set_shuffle:
-            torch.manual_seed(0)
         return DataLoader(test_set, batch_size=self.hparams.batch_size // self.trainer.world_size,
-                          shuffle=self.hparams.test_set_shuffle,
+                          shuffle=False,
                           num_workers=self.hparams.test_num_workers, collate_fn=self.get_collate_fn())

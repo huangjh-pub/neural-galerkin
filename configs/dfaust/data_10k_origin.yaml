@@ -1,0 +1,36 @@
+_onet_base_path: "data/dfaust/origin"
+_categories: null
+_transforms:
+  - name: "PointcloudNoise"
+    args: { "stddev": 0.0 }
+  - name: "SubsamplePointcloud"
+    args: { "N": 10000 }
+
+train_dataset: ShapeNetDataset
+train_val_num_workers: 4
+train_kwargs:
+  onet_base_path: ${_onet_base_path}
+  categories: ${_categories}
+  transforms: ${_transforms}
+  split: "train"
+  custom_name: "dfaust8"
+  random_seed: 0
+
+val_dataset: ShapeNetDataset
+val_kwargs:
+  onet_base_path: ${_onet_base_path}
+  categories: ${_categories}
+  transforms: ${_transforms}
+  split: "val"
+  custom_name: "dfaust_origin"
+  random_seed: "fixed"
+
+test_dataset: ShapeNetDataset
+test_num_workers: 4
+test_kwargs:
+  onet_base_path: ${_onet_base_path}
+  categories: ${_categories}
+  transforms: ${_transforms}
+  split: "test"
+  custom_name: "dfaust_origin"
+  random_seed: "fixed"

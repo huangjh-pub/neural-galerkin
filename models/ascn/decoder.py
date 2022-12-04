@@ -40,7 +40,7 @@ class MultiscaleDecoder(nn.Module):
     def forward(self, hash_tree: HashTree, multiscale_feat: dict, branch: int):
         p_feats = []
         for did in range(self.multiscale_depths):
-            vs = hash_tree.dec_strides[did] * hash_tree.voxel_size
+            vs = hash_tree.get_stride(branch, did) * hash_tree.voxel_size
             p = (hash_tree.xyz % vs) / vs
             p_feats.append(p)
         p = torch.cat(p_feats, dim=1)

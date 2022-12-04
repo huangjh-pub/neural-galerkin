@@ -4,7 +4,7 @@
 
 ![](./assets/teaser.jpg)
 
-This repository contains the implementation of the above paper. It is accepted to **ACM Siggraph Asia 2022**.
+This repository contains the implementation of the above paper. It is accepted to **ACM SIGGRAPH Asia 2022**.
 - Authors: [Jiahui Huang](https://cg.cs.tsinghua.edu.cn/people/~huangjh/), [Hao-Xiang Chen](), [Shi-Min Hu](https://cg.cs.tsinghua.edu.cn/shimin.htm)
     - Contact Jiahui either via email or github issues.
 
@@ -111,3 +111,87 @@ f_val = reconstructor.evaluate_chi(query_pos)   # -> (M,)
 ```
 
 ## Reproducing our results 
+
+Please follow the commands below to run all of our experiments.
+As we adopted a 2-stage training strategy, you may have to specify `--load_pretrained` when running the 2nd stage to indicate where the trained model for the 1st stage lies in.
+
+### ShapeNet
+
+Please download the dataset from [here](https://s3.eu-central-1.amazonaws.com/avg-projects/occupancy_networks/data/dataset_small_v1.1.zip), and put the extracted `onet` folder under `data/shapenet`.
+
+- 1K input, No noise
+```shell
+# Test our trained model (add -v to visualize)
+python test.py none --ckpt checkpoints/shapenet-perfect1k/main/paper/checkpoints/best.ckpt 
+# Train yourself: phase1
+python train.py configs/shapenet/full_1k_perfect_p1.yaml
+# Train yourself: phase2
+python train.py configs/shapenet/full_1k_perfect.yaml
+```
+
+- 3K input, Small noise
+```shell
+# Test our trained model (add -v to visualize)
+python test.py none --ckpt checkpoints/shapenet-noise3k/main/paper/checkpoints/best.ckpt 
+# Train yourself: phase1
+python train.py configs/shapenet/full_3k_noise_p1.yaml 
+# Train yourself: phase2
+python train.py configs/shapenet/full_3k_noise.yaml 
+```
+
+- 3K input, Large noise
+```shell
+# Test our trained model (add -v to visualize)
+python test.py none --ckpt checkpoints/shapenet-noiser3k/main/paper/checkpoints/best.ckpt 
+# Train yourself: phase1
+python train.py configs/shapenet/full_3k_noiser_p1.yaml 
+# Train yourself: phase2
+python train.py configs/shapenet/full_3k_noiser.yaml 
+```
+
+### Matterport3D
+
+- Without Normal
+```shell
+# Test our trained model (add -v to visualize)
+python test.py none --ckpt checkpoints/shapenet-perfect1k/main/paper/checkpoints/best.ckpt 
+# Train yourself: phase1
+python train.py configs/matterport/full_wonormal_p1.yaml 
+# Train yourself: phase2
+python train.py configs/matterport/full_wonormal.yaml 
+```
+
+- With Normal
+```shell
+# Test our trained model (add -v to visualize)
+python test.py none --ckpt checkpoints/shapenet-perfect1k/main/paper/checkpoints/best.ckpt 
+# Train yourself: phase1
+python train.py configs/matterport/full_wnormal_p1.yaml 
+# Train yourself: phase2
+python train.py configs/matterport/full_wnormal.yaml 
+```
+
+### D-FAUST
+
+- Origin split
+```shell
+# Test our trained model (add -v to visualize)
+python test.py none --ckpt checkpoints/shapenet-perfect1k/main/paper/checkpoints/best.ckpt 
+# Train yourself: phase1
+python train.py configs/shapenet/full_1k_perfect_p1.yaml
+# Train yourself: phase2
+python train.py configs/shapenet/full_1k_perfect.yaml
+```
+
+- Novel split (test only)
+```shell
+# Test our trained model (add -v to visualize)
+python test.py none --ckpt checkpoints/shapenet-perfect1k/main/paper/checkpoints/best.ckpt 
+```
+
+## Acknowledgements
+
+We thank anonymous reviewers for their constructive feedback. 
+This work was supported by the National Key R&D Program of China (No. 2021ZD0112902), Research Grant of Beijing Higher Institution Engineering Research Center and Tsinghua-Tencent Joint Laboratory for Internet Innovation Technology.
+
+Part of the code is directly borrowed from [torchsparse](https://github.com/mit-han-lab/torchsparse) and [Convolutional Occupancy Networks](https://github.com/autonomousvision/convolutional_occupancy_networks).

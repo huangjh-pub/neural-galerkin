@@ -84,7 +84,7 @@ class MeshEvaluator:
         # Triangle normal is used to be consistent with SAP.
         try:
             sampled_pcd = mesh.sample_points_uniformly(
-                number_of_points=self.n_points, use_triangle_normal=True, seed=0)
+                number_of_points=self.n_points, use_triangle_normal=True)
             pointcloud = np.asarray(sampled_pcd.points)
             normals = np.asarray(sampled_pcd.normals)
         except RuntimeError:    # Sample error.
