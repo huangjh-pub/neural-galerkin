@@ -9,7 +9,7 @@ This repository contains the implementation of the above paper. It is accepted t
     - Contact Jiahui either via email or github issues.
 
 
-If you find our code or paper useful, please consider citing
+If you find our code or paper useful, please consider citing:
 ```bibtex
 
 ```
@@ -119,7 +119,7 @@ As we adopted a 2-stage training strategy, you may have to specify `--load_pretr
 
 Please download the dataset from [here](https://s3.eu-central-1.amazonaws.com/avg-projects/occupancy_networks/data/dataset_small_v1.1.zip), and put the extracted `onet` folder under `data/shapenet`.
 
-- 1K input, No noise
+- 1K input, No noise (trained model download [here](https://drive.google.com/file/d/1WMYrhTtvTCWRVbMZiVfxmB3fvvNASUwe/view?usp=sharing))
 ```shell
 # Test our trained model (add -v to visualize)
 python test.py none --ckpt checkpoints/shapenet-perfect1k/main/paper/checkpoints/best.ckpt 
@@ -129,7 +129,7 @@ python train.py configs/shapenet/full_1k_perfect_p1.yaml
 python train.py configs/shapenet/full_1k_perfect.yaml
 ```
 
-- 3K input, Small noise
+- 3K input, Small noise (trained model download [here](https://drive.google.com/file/d/1aE7XAnl8ffdbU22F6ZZkhiU9-zoNGAt-/view?usp=sharing))
 ```shell
 # Test our trained model (add -v to visualize)
 python test.py none --ckpt checkpoints/shapenet-noise3k/main/paper/checkpoints/best.ckpt 
@@ -139,7 +139,7 @@ python train.py configs/shapenet/full_3k_noise_p1.yaml
 python train.py configs/shapenet/full_3k_noise.yaml 
 ```
 
-- 3K input, Large noise
+- 3K input, Large noise (trained model download [here](https://drive.google.com/file/d/13CGwy3k4Mny6__zbDHrFiiZaUkv1CelT/view?usp=sharing))
 ```shell
 # Test our trained model (add -v to visualize)
 python test.py none --ckpt checkpoints/shapenet-noiser3k/main/paper/checkpoints/best.ckpt 
@@ -151,20 +151,22 @@ python train.py configs/shapenet/full_3k_noiser.yaml
 
 ### Matterport3D
 
-- Without Normal
+Please download the dataset from [here](https://drive.google.com/file/d/18c02XjpWHtP7vjFhQyuokH90G8ikxo23/view?usp=sharing), and put the extracted `matterport` folder under `data/`.
+
+- Without Normal (trained model download [here](https://drive.google.com/file/d/1ouek3Ywt8QVf-9D55KhF_C_15SSvRg8Y/view?usp=sharing))
 ```shell
 # Test our trained model (add -v to visualize)
-python test.py none --ckpt checkpoints/shapenet-perfect1k/main/paper/checkpoints/best.ckpt 
+python test.py none --ckpt checkpoints/matterport/without_normal/paper/checkpoints/best.ckpt 
 # Train yourself: phase1
 python train.py configs/matterport/full_wonormal_p1.yaml 
 # Train yourself: phase2
 python train.py configs/matterport/full_wonormal.yaml 
 ```
 
-- With Normal
+- With Normal (trained model download [here](https://drive.google.com/file/d/1ouek3Ywt8QVf-9D55KhF_C_15SSvRg8Y/view?usp=sharing))
 ```shell
 # Test our trained model (add -v to visualize)
-python test.py none --ckpt checkpoints/shapenet-perfect1k/main/paper/checkpoints/best.ckpt 
+python test.py none --ckpt checkpoints/matterport/with_normal/paper/checkpoints/best.ckpt 
 # Train yourself: phase1
 python train.py configs/matterport/full_wnormal_p1.yaml 
 # Train yourself: phase2
@@ -173,20 +175,22 @@ python train.py configs/matterport/full_wnormal.yaml
 
 ### D-FAUST
 
-- Origin split
+Please download the dataset from [here](https://drive.google.com/file/d/1ghL6RRQjZAEj4jCfozW11pDWypPnpp7m/view?usp=sharing), and put the extracted `dfaust` folder under `data/`.
+
+- Origin split (trained models download [here](https://drive.google.com/file/d/1zjpMhymlAbYQv2jplYw4eWfkywVzpoKd/view?usp=sharing))
 ```shell
 # Test our trained model (add -v to visualize)
-python test.py none --ckpt checkpoints/shapenet-perfect1k/main/paper/checkpoints/best.ckpt 
+python test.py none --ckpt checkpoints/dfaust/origin/paper/checkpoints/best.ckpt 
 # Train yourself: phase1
-python train.py configs/shapenet/full_1k_perfect_p1.yaml
+python train.py configs/dfaust/full_10k_p1.yaml
 # Train yourself: phase2
-python train.py configs/shapenet/full_1k_perfect.yaml
+python train.py configs/dfaust/full_10k.yaml
 ```
 
 - Novel split (test only)
 ```shell
 # Test our trained model (add -v to visualize)
-python test.py none --ckpt checkpoints/shapenet-perfect1k/main/paper/checkpoints/best.ckpt 
+python test.py configs/dfaust/data_10k_novel.yaml --ckpt checkpoints/dfaust/origin/paper/checkpoints/best.ckpt -v
 ```
 
 ## Acknowledgements

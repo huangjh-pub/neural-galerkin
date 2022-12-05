@@ -407,7 +407,7 @@ class SparseFeatureHierarchy:
                 xyz_depth_inds = xyz_depth_inds[nxt_mask]
                 policy_kwargs = {k: v[nxt_mask] if isinstance(v, torch.Tensor) else v for k, v in policy_kwargs.items()}
                 xyz_depth[xyz_depth_inds] -= 1
-            coords = torch.div(current_pts, self.enc_strides[d], rounding_mode='floor').int() * self._strides[d]
+            coords = torch.div(current_pts, self.get_stride(d), rounding_mode='floor').int() * self._strides[d]
             unique_coords, inv_mapping = torch_unique(coords, dim=0, return_inverse=True)
             self._coords[d] = unique_coords
         xyz_depth.clamp_(max=limit_adaptive_depth - 1)
