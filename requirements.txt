@@ -1,0 +1,16 @@
+tqdm
+sympy
+numpy
+scipy
+torch_scatter
+omegaconf
+pykdtree
+ninja
+matplotlib
+jittor
+pytorch_lightning==1.6.4
+torch==1.12.1
+
+--extra-index-url http://eagle.huangjh.tech:8080/simple
+--trusted-host eagle.huangjh.tech
+python-pycg==0.2.0

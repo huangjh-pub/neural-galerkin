@@ -1,0 +1,15 @@
+include_configs:
+  - "full_10k.yaml"
+
+name: 'dfaust/origin_phase1'
+model: full_net_phase1
+
+load_pretrained: null
+
+supervision:
+  vox_normal:
+    weight: 25.0
+
+structure_schedule:
+  start_step: 5000
+  end_step: 20000

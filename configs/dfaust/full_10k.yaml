@@ -1,0 +1,7 @@
+include_configs:
+  - full_net_base.yaml
+  - data_10k_origin.yaml
+
+name: 'dfaust/origin'
+
+load_pretrained: "checkpoints/dfaust/origin_phase1/version_0/checkpoints/last.ckpt"

@@ -1,0 +1,6 @@
+include_configs:
+  - param.yaml
+
+batch_size: 1
+accumulate_grad_batches: 1
+visualize: false

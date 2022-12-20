@@ -1,0 +1,38 @@
+supervision:
+  vox_normal:
+    weight: 0.0
+  structure_weight: 1.0
+  surface_weight: 20.0
+  grad_mult: 1.0
+
+solver: "cusolver"
+init_basis_branch: true
+network:
+  unet:
+    enhance_level: 0
+load_pretrained: null
+
+adaptive_depth: 1
+adaptive_policy:
+  method: "density"
+  min_density: 64.0
+
+structure_schedule:
+  start_step: -100
+  end_step: 0
+
+weighted:
+  enabled: false
+  target: "none"
+  fixed_level_set: false
+  w_branch:
+    dim: 16
+  decoder:
+    multiscale_depths: ${tree_depth}
+    hidden_size: 32
+    n_blocks: 2
+    output_normalize: true
+    out_init: null
+
+use_input_normal: false
+load_pretrained_strict: true

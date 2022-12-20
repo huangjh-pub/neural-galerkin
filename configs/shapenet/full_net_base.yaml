@@ -1,0 +1,70 @@
+load_pretrained: null
+
+model: full_net
+
+batch_size: 1
+accumulate_grad_batches: 2
+
+tree_depth: 4
+tree_expand: -1
+voxel_size: 0.02
+
+solver: "mixed"
+
+structure_schedule:
+  start_step: 0
+  end_step: 500
+
+marching_cubes:
+  resolution: 4
+  depth: 0
+  expand: -1
+
+screening:
+  enabled: true
+  alpha: 64.0
+  delta: 0.1
+
+supervision:
+  surface_weight: 20.0
+
+optimizer: "Adam"
+learning_rate:
+  init: 1.0e-3
+  decay_mult: 0.7
+  decay_step: 50000
+  clip: 1.0e-6
+weight_decay: 0.0
+grad_clip: 0.5
+
+network:
+  encoder:
+    dim: 3
+    hidden_dim: 32
+    c_dim: 32
+    n_blocks: 3
+    map2local: true
+  unet:
+    enhance_level: 1
+    in_channels: ${..encoder.c_dim}
+    num_blocks: ${tree_depth}
+    f_maps: 32
+    neck_dense_type: "FULL_EXPAND_1"
+
+basis:
+  name: "AdditiveHermite"
+  kwargs:
+    n_degrees: 6
+    components: ["SinPeaks(1)", "SinPeaks(2)", "SinPeaks(3)"]
+    init_vals: [0.0, 0.0, 0.0]
+
+weighted:
+  enabled: false
+  target: "delta"
+  fixed_level_set: true
+  w_branch:
+    dim: 16
+    is_tmp_branch: true
+  decoder:
+    output_normalize: true
+    out_init: 0.5

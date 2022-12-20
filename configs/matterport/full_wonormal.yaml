@@ -1,0 +1,13 @@
+include_configs:
+  - full_net_base.yaml
+  - data_matterport.yaml
+
+name: 'matterport/without_normal'
+use_input_normal: false
+
+supervision:
+  # Somehow prevents overfit a bit...
+  structure_weight: 0.5
+  grad_mult: 10.0
+
+load_pretrained: "checkpoints/matterport/without_normal_phase1/version_0/checkpoints/last.ckpt"
