@@ -1,9 +1,6 @@
 import torch
 from typing import Tuple
 
-from torch_spsr.core.hashtree import HashTree
-from torch_spsr.core.reconstructor import Reconstructor
-
 __version__ = '1.0.0'
 __version_info__ = (1, 0, 0)
 
@@ -20,6 +17,9 @@ def reconstruct(xyz: torch.Tensor, normal: torch.Tensor, voxel_size: float, dept
     :param screen_alpha: float, weight of the screening term
     :return: vertices (V, 3) torch.Tensor, triangles (T, 3) torch.Tensor
     """
+    from torch_spsr.core.hashtree import HashTree
+    from torch_spsr.core.reconstructor import Reconstructor
+
     assert xyz.size(0) == normal.size(0) and xyz.size(1) == normal.size(1) == 3, \
         "Input positions and normals should have same size (N, 3)!"
     assert xyz.is_cuda and normal.is_cuda, "Input should be on the device!"
