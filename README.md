@@ -1,6 +1,6 @@
 # A Neural Galerkin Solver for Accurate Surface Reconstruction
 
-### [**Paper**]() | [**Project Page**]()
+### [**Paper**](https://dl.acm.org/doi/abs/10.1145/3550454.3555457) | [**Video**](https://youtu.be/QT5k0ZxDFfo) | [**Talk**](https://youtu.be/dYy-lzeMsCQ)
 
 ![](./assets/teaser.jpg)
 
@@ -11,7 +11,17 @@ This repository contains the implementation of the above paper. It is accepted t
 
 If you find our code or paper useful, please consider citing:
 ```bibtex
-
+@article{huang2022neuralgalerkin,
+  author = {Huang, Jiahui and Chen, Hao-Xiang and Hu, Shi-Min},
+  title = {A Neural Galerkin Solver for Accurate Surface Reconstruction},
+  year = {2022},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {41},
+  number = {6},
+  doi = {10.1145/3550454.3555457},
+  journal = {ACM Trans. Graph.},
+}
 ```
 
 ## Introduction
