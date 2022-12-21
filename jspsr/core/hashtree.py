@@ -1,6 +1,7 @@
 import weakref
 from pathlib import Path
 
+import jittor as jt
 import torch
 import numpy as np
 import torch_scatter
@@ -34,7 +35,7 @@ class HashTree:
     DECODER = 1
     DECODER_TMP = 2
 
-    def __init__(self, xyz: torch.Tensor, voxel_size: float, depth: int):
+    def __init__(self, xyz: jt.Var, voxel_size: float, depth: int):
         """
         Build an octree structure, and each layer is indexed as a sparse hash table.
             This only deal with a single instance (batch size = 1)
@@ -75,7 +76,7 @@ class HashTree:
         """
         return self._enc_branch.depth
 
-    def get_coords(self, branch: int, depth: int) -> torch.Tensor:
+    def get_coords(self, branch: int, depth: int) -> jt.Var:
         """
         :return: the bottom-left-lower coordinates at depth.
         """
@@ -93,7 +94,7 @@ class HashTree:
         """
         return self._get_branch(branch).get_num_voxels(depth)
 
-    def update_coords(self, branch: int, depth: int, coords: Union[torch.Tensor, None]):
+    def update_coords(self, branch: int, depth: int, coords: Union[jt.Var, None]):
         """
         Update the coordinates of branch at depth.
         """
@@ -124,21 +125,21 @@ class HashTree:
         else:
             raise NotImplementedError
 
-    def evaluate_voxel_status(self, branch: int, coords: torch.Tensor, depth: int):
+    def evaluate_voxel_status(self, branch: int, coords: jt.Var, depth: int):
         """
         Evaluate status in the hierarchy, please refer to core.hashtree.VoxelStatus for numerical values:
             VoxelStatus.VS_NON_EXIST: This voxel shouldn't exist
             VoxelStatus.VS_EXIST_STOP: This voxel exists and is a leaf node
             VoxelStatus.VS_EXIST_CONTINUE: This voxel exists and has >0 children
         :param branch: int, the branch you want to query
-        :param coords: (N, 3) torch.Tensor coordinates in the world space
+        :param coords: (N, 3) jt.Var coordinates in the world space
         :param depth: int
-        :return: (N, ) long torch.Tensor, indicating voxel status
+        :return: (N, ) long jt.Var, indicating voxel status
         """
         return self._get_branch(branch).evaluate_voxel_status(coords, depth)
 
-    def get_neighbours_data(self, source_coords: torch.Tensor, source_stride: int, target_depth: int,
-                            nn_kernel: torch.Tensor, branch: int, conv_based: bool = False,
+    def get_neighbours_data(self, source_coords: jt.Var, source_stride: int, target_depth: int,
+                            nn_kernel: jt.Var, branch: int, conv_based: bool = False,
                             transposed: bool = False):
         """
         Please refer to _hash_backend.SparseFeatureHierarchy.get_coords_neighbours
@@ -153,8 +154,8 @@ class HashTree:
         """
         return self._get_branch(branch).get_self_neighbours(source_depth, target_depth, target_range, conv_based)
 
-    def evaluate_interpolated(self, query_pos: torch.Tensor, basis, basis_feat: Union[torch.Tensor, None],
-                              feat_depth: int, feat: torch.Tensor, compute_mask: bool = False,
+    def evaluate_interpolated(self, query_pos: jt.Var, basis, basis_feat: Union[jt.Var, None],
+                              feat_depth: int, feat: jt.Var, compute_mask: bool = False,
                               compute_grad: bool = False):
         dec_coords = self._dec_branch.get_coords(feat_depth)
         dec_stride = self._dec_branch.get_stride(feat_depth)
@@ -272,7 +273,7 @@ class HashTree:
         :param log_base: float
         :param min_density: float, minimum density in each voxel. If exceed, go to coarser level.
         :param limit_adaptive_depth: int. Maximum adaptive number of levels.
-        :return torch.Tensor long. (N, ) level that the point lies in.
+        :return jt.Var long. (N, ) level that the point lies in.
         """
         if uniform_density:
             # At least works for the default kwargs, which the users would never change.
@@ -285,25 +286,25 @@ class HashTree:
         self.xyz_depth = self._enc_branch.build_hierarchy_adaptive(
             self.xyz, self.xyz_density, log_base, min_density, limit_adaptive_depth)
 
-    def split_data(self, xyz: torch.Tensor, branch: int, data_depth: int, data: torch.Tensor):
+    def split_data(self, xyz: jt.Var, branch: int, data_depth: int, data: jt.Var):
         """
         Obtain the tri-linearly interpolated data located at xyz.
         :param branch: int
-        :param xyz: torch.Tensor (N, 3)
+        :param xyz: jt.Var (N, 3)
         :param data_depth: int
-        :param data: torch.Tensor (M, K), where K is feature dimension, and M = self.get_num_voxels(data_depth)
-        :return: (N, K) torch.Tensor
+        :param data: jt.Var (M, K), where K is feature dimension, and M = self.get_num_voxels(data_depth)
+        :return: (N, K) jt.Var
         """
         return self._get_branch(branch).split_data(xyz, data_depth, data)
 
-    def splat_data(self, xyz: torch.Tensor, branch: int, data_depth: int, data: torch.Tensor = None,
+    def splat_data(self, xyz: jt.Var, branch: int, data_depth: int, data: jt.Var = None,
                    check_corr: bool = True, return_nf_mask: bool = False):
         """
         Splat data located at xyz to the tree voxels.
         :param branch: int
-        :param xyz: torch.Tensor (N, 3)
+        :param xyz: jt.Var (N, 3)
         :param data_depth: int
-        :param data: torch.Tensor (N, K)
+        :param data: jt.Var (N, K)
         :param check_corr: if True, check if data is fully supported by its 8 neighbours
         :param return_nf_mask: Legacy, do not use.
         :return: (M, K) or (M,), where M = self.get_num_voxels(data_depth)

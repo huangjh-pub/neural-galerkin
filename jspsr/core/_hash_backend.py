@@ -1,6 +1,7 @@
 from typing import List, Union
 
 import numpy as np
+import jittor as jt
 import torch
 import torch_scatter
 
@@ -9,7 +10,7 @@ from .ops import torch_unique
 from jspsr.bases.bezier_tensor import BezierTensorBasis
 
 
-def compute_density(xyz: torch.Tensor, voxel_size: float) -> torch.Tensor:
+def compute_density(xyz: jt.Var, voxel_size: float) -> jt.Var:
     """
     Kernel density estimation using Bezier Tensor.
     :param xyz: (N, 3) input point cloud.
@@ -117,7 +118,7 @@ class SparseFeatureHierarchy:
         """
         return self._strides[depth]
 
-    def get_coords(self, depth: int, expand: int = 0, conforming: bool = False) -> torch.Tensor:
+    def get_coords(self, depth: int, expand: int = 0, conforming: bool = False) -> jt.Var:
         """
         :param depth:
         :param expand:
@@ -172,8 +173,8 @@ class SparseFeatureHierarchy:
                     f"Bound=[{c_min[0]},{c_max[0]}]x[{c_min[1]},{c_max[1]}]x[{c_min[2]},{c_max[2]}]\n"
         return stat
 
-    def get_coords_neighbours(self, source_coords: torch.Tensor, source_stride: int, target_depth: int,
-                              nn_kernel: torch.Tensor, conv_based: bool = False, transposed: bool = False):
+    def get_coords_neighbours(self, source_coords: jt.Var, source_stride: int, target_depth: int,
+                              nn_kernel: jt.Var, conv_based: bool = False, transposed: bool = False):
         """
         A generic interface for querying neighbourhood information. (This is without cache)
             For all source (data), find all target whose neighbourhood (in target level) covers it,
@@ -288,7 +289,7 @@ class SparseFeatureHierarchy:
 
         return recover_inv_op(source_ids, target_ids, neighbour_types, nbsizes)
 
-    def evaluate_voxel_status(self, coords: torch.Tensor, depth: int):
+    def evaluate_voxel_status(self, coords: jt.Var, depth: int):
         """
         Evaluate status in the hierarchy, please refer to core.hashtree.VoxelStatus for numerical values:
             VoxelStatus.VS_NON_EXIST: This voxel shouldn't exist
@@ -316,14 +317,8 @@ class SparseFeatureHierarchy:
 
         return status
 
-    def split_data(self, xyz: torch.Tensor, data_depth: int, data: torch.Tensor):
-        """
-        Obtain the tri-linearly interpolated data located at xyz.
-        :param xyz: torch.Tensor (N, 3)
-        :param data_depth: int
-        :param data: torch.Tensor (M, K), where K is feature dimension, and M = self.get_num_voxels(data_depth)
-        :return: (N, K) torch.Tensor
-        """
+    def split_data(self, xyz: jt.Var, data_depth: int, data: jt.Var):
+        """jt.Var"""
         tree_stride = self._strides[data_depth]
         assert data.size(0) == self._coords[data_depth].size(0), "Tree data does not agree on size."
 
@@ -334,17 +329,9 @@ class SparseFeatureHierarchy:
                                          alpha_source % xyz.size(0), dim=0,
                                          dim_size=xyz.size(0))
 
-    def splat_data(self, xyz: torch.Tensor, data_depth: int, data: torch.Tensor = None,
+    def splat_data(self, xyz: jt.Var, data_depth: int, data: jt.Var = None,
                    check_corr: bool = True, return_nf_mask: bool = False):
-        """
-        Splat data located at xyz to the tree voxels.
-        :param xyz: torch.Tensor (N, 3)
-        :param data_depth: int
-        :param data: torch.Tensor (N, K)
-        :param check_corr: if True, check if data is fully supported by its 8 neighbours
-        :param return_nf_mask: Legacy, do not use.
-        :return: (M, K) or (M,), where M = self.get_num_voxels(data_depth)
-        """
+        """jt.Var"""
         if data is not None:
             assert data.size(0) == xyz.size(0), "Input data must agree with xyz in size."
         else:
@@ -368,7 +355,7 @@ class SparseFeatureHierarchy:
             return splat_res, nb_sizes.reshape(8, -1).sum(0) < 4
         return splat_res
 
-    def build_hierarchy_dense(self, xyz: torch.Tensor, expand_range: int = 0):
+    def build_hierarchy_dense(self, xyz: jt.Var, expand_range: int = 0):
         """
         Rebuild the tree structure, based on current xyz, voxel_size and depth.
         """
@@ -390,7 +377,7 @@ class SparseFeatureHierarchy:
             self._coords.append(coords)
         self._update_hash_table()
 
-    def build_hierarchy_subdivide(self, xyz: torch.Tensor, subdivide_policy, expand: bool = False,
+    def build_hierarchy_subdivide(self, xyz: jt.Var, subdivide_policy, expand: bool = False,
                                   limit_adaptive_depth: int = 100, **policy_kwargs):
         """
         Build a hierarchy, based on subdivision policy
@@ -424,9 +411,9 @@ class SparseFeatureHierarchy:
 
         return xyz_depth
 
-    def build_hierarchy_adaptive(self, xyz: torch.Tensor, xyz_density: torch.Tensor, log_base: float = 4.0,
+    def build_hierarchy_adaptive(self, xyz: jt.Var, xyz_density: jt.Var, log_base: float = 4.0,
                                  min_density: float = 8.0,
-                                 limit_adaptive_depth: int = 100) -> torch.Tensor:
+                                 limit_adaptive_depth: int = 100) -> jt.Var:
         """
         Build the hierarchy by first determine the integer level of each point (based on xyz_density, log_base and
         min_density), then splat the points onto the tree structure.
@@ -457,14 +444,7 @@ class SparseFeatureHierarchy:
         return xyz_depth
 
     def update_coords(self, depth: int, coords: Union[torch.Tensor, None]):
-        """
-        Update the structure of the tree. This is mainly used during decoder's structure building stage.
-            For now you could assume that the structure at depth does not exist yet.
-            But I think we should have some general function that alters the tree structure.
-        :param depth: int
-        :param coords: torch.Tensor (N, 3) or None, if None, then this layer would be empty.
-        :return:
-        """
+        """jt.Var"""
         if coords is None:
             coords = torch.zeros((0, 3), dtype=torch.int32, device=self._device)
         assert coords.ndim == 2 and coords.size(1) == 3, coords.size()
@@ -474,7 +454,7 @@ class SparseFeatureHierarchy:
     def _identity_kernel(self):
         return torch.tensor([[0, 0, 0]], dtype=torch.int32, device=self._device)
 
-    def _quantize_coords(self, xyz: torch.Tensor, data_depth: int):
+    def _quantize_coords(self, xyz: jt.Var, data_depth: int):
         # Note this is just splat_data with NEW_BRANCH.
         tree_stride = self._strides[data_depth]
         alpha_coords, _ = self._trilinear_weights(xyz, tree_stride)
@@ -486,7 +466,7 @@ class SparseFeatureHierarchy:
             self._hash_table[d] = CuckooHashTable(data=self._coords[d])
             assert self._hash_table[d].dim == 3
 
-    def _trilinear_weights(self, xyz: torch.Tensor, tree_stride: int, xyz_data: torch.Tensor = 1,
+    def _trilinear_weights(self, xyz: jt.Var, tree_stride: int, xyz_data: jt.Var = 1,
                            compute_grad: bool = False):
         # Gradient is alpha_data w.r.t. xyz.
         q_coords = xyz / self._voxel_size

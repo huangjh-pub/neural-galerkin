@@ -1,5 +1,6 @@
 from typing import Union
 
+import jittor as jt
 import torch
 import torch_scatter
 import numpy as np

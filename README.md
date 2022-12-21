@@ -42,9 +42,27 @@ conda activate ngs
 # Install other packages
 pip install -r requirements.txt
 
-# Compile pytorch_spsr CUDA extensions inplace
+# Compile CUDA kernels inplace 
+# [!] (For installable package please use the pth branch!)
 python setup.py build_ext --inplace
 ```
+
+To test environment setup, run the non-learned SPSR with:
+```bash
+python examples/main.py
+```
+
+You should be able to see the following Jittor output:
+```
+[i ...:43:10.528642 56 lock.py:85] Create lock file:~/.cache/jittor/jt1.3.6/g++9.4.0/py3.10.4/Linux-5.15.0-5x6b/IntelRCoreTMi9xa7/jittor.lock
+[i ...:43:10.537673 56 compiler.py:955] Jittor(1.3.6.4) src: .../envs/ngs/lib/python3.10/site-packages/jittor
+[i ...:43:10.538776 56 compiler.py:956] g++ at /usr/bin/g++(9.4.0)
+[i ...:43:10.538817 56 compiler.py:957] cache_path: ~/.cache/jittor/jt1.3.6/g++9.4.0/py3.10.4/Linux-5.15.0-5x6b/IntelRCoreTMi9xa7/default
+[i ...:43:10.540310 56 __init__.py:411] Found nvcc(11.1.105) at ...
+[i ...:43:10.615808 56 __init__.py:411] Found gdb(10.2) at ...
+```
+as well as the visualization:
+![](./assets/horse.gif)
 
 ## Experiments
 

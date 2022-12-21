@@ -1,21 +1,24 @@
-import torch
-import jspsr
 import open3d as o3d
+
+import torch    # For libraries to work
+import jittor as jt
+
+import jspsr
 import numpy as np
 from pathlib import Path
 
 
-def to_o3d_pcd(xyz: torch.Tensor, normal: torch.Tensor):
+def to_o3d_pcd(xyz: jt.Var, normal: jt.Var):
     pcd = o3d.geometry.PointCloud()
-    pcd.points = o3d.utility.Vector3dVector(xyz.detach().cpu().numpy())
-    pcd.normals = o3d.utility.Vector3dVector(normal.detach().cpu().numpy())
+    pcd.points = o3d.utility.Vector3dVector(xyz.numpy())
+    pcd.normals = o3d.utility.Vector3dVector(normal.numpy())
     return pcd
 
 
-def to_o3d_mesh(vertices: torch.Tensor, triangles: torch.Tensor):
+def to_o3d_mesh(vertices: jt.Var, triangles: jt.Var):
     mesh = o3d.geometry.TriangleMesh()
-    mesh.vertices = o3d.utility.Vector3dVector(vertices.detach().cpu().numpy())
-    mesh.triangles = o3d.utility.Vector3iVector(triangles.detach().cpu().numpy())
+    mesh.vertices = o3d.utility.Vector3dVector(vertices.numpy())
+    mesh.triangles = o3d.utility.Vector3iVector(triangles.numpy())
     mesh.compute_vertex_normals()
     return mesh
 
@@ -23,8 +26,8 @@ def to_o3d_mesh(vertices: torch.Tensor, triangles: torch.Tensor):
 if __name__ == '__main__':
     horse_npts = np.fromfile(Path(__file__).parent / "horse.bnpts").reshape(-1, 6)
     horse_xyz, horse_normal = horse_npts[:, :3], horse_npts[:, 3:]
-    horse_xyz = torch.from_numpy(horse_xyz).cuda().float()
-    horse_normal = torch.from_numpy(horse_normal).cuda().float()
+    horse_xyz = jt.array(horse_xyz)
+    horse_normal = jt.array(horse_normal)
 
     print(f"Start computing the mesh. #pts = {horse_xyz.shape[0]}")
     v, f = jspsr.reconstruct(horse_xyz, horse_normal, depth=4, voxel_size=0.002, screen_alpha=32.0)

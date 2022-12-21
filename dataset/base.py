@@ -2,9 +2,11 @@ import collections
 import multiprocessing
 
 import json
-import torch
 from numpy.random import RandomState
+
+import torch
 from torch.utils.data import Dataset
+import jittor as jt
 
 
 class DatasetSpec:
@@ -83,7 +85,9 @@ def list_collate(batch):
             elem = e
             break
     elem_type = type(elem)
-    if isinstance(elem, torch.Tensor):
+    if isinstance(elem, jt.Var):
+        return batch
+    elif isinstance(elem, torch.Tensor):
         return batch
     elif elem_type.__module__ == 'numpy' and elem_type.__name__ != 'str_' \
             and elem_type.__name__ != 'string_':

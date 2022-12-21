@@ -1,9 +1,11 @@
-import torch
 import math
 from pathlib import Path
 import pickle
 
+import torch
+
 from jspsr.bases.abc import BaseBasis
+import jittor as jt
 
 
 class BezierTensorBasis(BaseBasis):
@@ -32,7 +34,7 @@ class BezierTensorBasis(BaseBasis):
                 cls.SHIFTED_SELF_DERIV_INTEGRAL, cls.INV_SHIFTED_SELF_DERIV_INTEGRAL = pickle.load(f)
 
     @classmethod
-    def evaluate_single(cls, x: torch.Tensor):
+    def evaluate_single(cls, x: jt.Var):
         b1 = (x + 1.5) ** 2
         b2 = -2 * (x ** 2) + 1.5
         b3 = (x - 1.5) ** 2
@@ -42,7 +44,7 @@ class BezierTensorBasis(BaseBasis):
         return m1 * b1 + m2 * b2 + m3 * b3
 
     @classmethod
-    def evaluate_derivative_single(cls, x: torch.Tensor):
+    def evaluate_derivative_single(cls, x: jt.Var):
         b1 = 2 * x + 3
         b2 = -4 * x
         b3 = 2 * x - 3
@@ -51,27 +53,16 @@ class BezierTensorBasis(BaseBasis):
         m3 = (x >= 0.5) & (x < 1.5)
         return m1 * b1 + m2 * b2 + m3 * b3
 
-    def evaluate(self, feat: torch.Tensor, xyz: torch.Tensor, feat_ids: torch.Tensor):
-        """
-        :param feat: torch.Tensor (M, K),     the basis feature, i.e. $m_k^s$.
-        :param xyz:  torch.Tensor (N, 3),     local coordinates w.r.t. the voxel's center.
-        :param feat_ids: torch.Tensor (N, ),  the index (0~M-1) into feat.
-        :return: evaluated basis values: torch.Tensor (N, )
-        """
+    def evaluate(self, feat: jt.Var, xyz: jt.Var, feat_ids: jt.Var):
+        """jt.Var"""
         x, y, z = xyz[..., 0], xyz[..., 1], xyz[..., 2]
         bx = self.evaluate_single(x)
         by = self.evaluate_single(y)
         bz = self.evaluate_single(z)
         return bx * by * bz
 
-    def evaluate_derivative(self, feat: torch.Tensor, xyz: torch.Tensor, feat_ids: torch.Tensor, stride: int):
-        """
-        :param feat: torch.Tensor (M, K),     the basis feature, i.e. $m_k^s$.
-        :param xyz:  torch.Tensor (N, 3),     local coordinates w.r.t. the voxel's center.
-        :param feat_ids: torch.Tensor (N, ),  the index (0~M-1) into feat.
-        :param stride: int, denominator of xyz, this is needed for derivative computation.
-        :return: evaluated derivative: torch.Tensor (N, 3)
-        """
+    def evaluate_derivative(self, feat: jt.Var, xyz: jt.Var, feat_ids: jt.Var, stride: int):
+        """jt.Var"""
         x, y, z = xyz[..., 0], xyz[..., 1], xyz[..., 2]
         bx = self.evaluate_single(x)
         by = self.evaluate_single(y)
@@ -81,15 +72,8 @@ class BezierTensorBasis(BaseBasis):
         dz = self.evaluate_derivative_single(z) / stride
         return torch.stack([dx * by * bz, bx * dy * bz, bx * by * dz], dim=1)
 
-    def integrate_deriv_deriv_product(self, rel_pos: torch.Tensor, source_stride: int, target_stride: int, **kwargs):
-        """
-        Compute $integrate_Omega nabla B_source^T nabla B_target$, as appeared in LHS.
-            We assume rel_pos are unit interval relative to source, i.e. source-basis + rel_pos = target-basis
-        :param rel_pos:     torch.Tensor (N, 3)
-        :param source_stride: int, stride of source voxel
-        :param target_stride: int, stride of target voxel
-        :return: evaluated integral: torch.Tensor (N, )
-        """
+    def integrate_deriv_deriv_product(self, rel_pos: jt.Var, source_stride: int, target_stride: int, **kwargs):
+        """jt.Var"""
         assert source_stride <= target_stride, "Source stride cannot be larger than target stride."
 
         mult = target_stride // source_stride
@@ -111,17 +95,9 @@ class BezierTensorBasis(BaseBasis):
 
         return res
 
-    def integrate_const_deriv_product(self, data: torch.Tensor, rel_pos: torch.Tensor,
+    def integrate_const_deriv_product(self, data: jt.Var, rel_pos: jt.Var,
                                       data_stride: int, target_stride: int, **kwargs):
-        """
-        Compute $integrate_Omega nabla B_target^T data$, as appeared in RHS.
-            data takes the region of data_stride (1x1x1), and is rel_pos to this basis, i.e. data + rel_pos = this-basis
-        :param data:        torch.Tensor (N, K), the data (N) to be integrated
-        :param rel_pos:     torch.Tensor (N, 3)
-        :param data_stride: int, stride of the data voxel
-        :param target_stride: int, stride of target voxel
-        :return: evaluated integral: torch.Tensor (N, )
-        """
+        """jt.Var"""
         if target_stride >= data_stride:
             mult = target_stride // data_stride
             abs_val = (rel_pos + (3 * mult - 1) / 2.).round().long()
@@ -144,7 +120,7 @@ class BezierTensorBasis(BaseBasis):
 
         return res
 
-    def initialize_feature_value(self, feat: torch.Tensor) -> None:
+    def initialize_feature_value(self, feat: jt.Var) -> None:
         pass
 
 
