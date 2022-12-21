@@ -65,7 +65,7 @@ python setup.py build_ext --inplace
 
 After installing `torch-spsr` package, you may use it in either of the following two ways:
 
-1. Using the wrapper function to obtain the triangle mesh directly (see `python examples/main.py`):
+1. Using the wrapper function to obtain the triangle mesh directly:
 
 ```python
 import torch_spsr
@@ -85,6 +85,9 @@ The resulting triangle mesh representation can be visualized using:
 from pycg import vis
 vis.show_3d([vis.mesh(v, f)])
 ```
+
+- The above commands are exemplified with `python examples/main.py`:
+![](./assets/horse.gif)
 
 2. Using the `Reconstructor` class to obtain a differentiable implicit function:
 
